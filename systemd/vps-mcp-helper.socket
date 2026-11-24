@@ -1,0 +1,22 @@
+# /etc/systemd/system/vps-mcp-helper.socket
+#
+# Listening socket for the read-only root helper. The socket is root:agent
+# 0660, so only root and the `agent` user can submit requests. Each connection
+# starts a fresh helper instance via vps-mcp-helper@.service. No sudo and no
+# setuid are involved, which keeps the OpenCode unit's NoNewPrivileges=true.
+
+[Unit]
+Description=Read-only root helper socket for the VPS MCP server
+Documentation=file:/opt/vps-mcp/README.md
+
+[Socket]
+ListenStream=/run/vps-mcp/helper.sock
+Accept=yes
+SocketMode=0660
+SocketUser=root
+SocketGroup=agent
+DirectoryMode=0755
+RemoveOnStop=yes
+
+[Install]
+WantedBy=sockets.target

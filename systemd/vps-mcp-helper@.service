@@ -1,0 +1,31 @@
+# /etc/systemd/system/vps-mcp-helper@.service
+#
+# Per-connection instance started by vps-mcp-helper.socket (Accept=yes).
+# systemd passes the accepted connection as stdin/stdout; the helper reads one
+# JSON request and writes one JSON response. Read-only by construction.
+
+[Unit]
+Description=Read-only root helper request for the VPS MCP server
+Documentation=file:/opt/vps-mcp/README.md
+After=docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/vps-mcp-helper
+StandardInput=socket
+StandardOutput=socket
+StandardError=journal
+TimeoutStartSec=120
+
+# Containment. The helper needs to read host state and talk to dockerd,
+# journald and systemd over their sockets; it never needs network or setuid.
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=read-only
+ProtectSystem=full
+ProtectControlGroups=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+RestrictSUIDSGID=true
+MemoryMax=512M
+CPUQuota=40%
